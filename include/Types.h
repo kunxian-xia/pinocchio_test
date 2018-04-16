@@ -99,6 +99,8 @@ typedef struct {
   libff::bigint<LIMBS> t_minus_1_over_2;              // (t-1)/2
   mp_limb_t inv;                                  // modulus^(-1) mod W, where W = 2^(word size)
   libff::bigint<LIMBS> Rsquared;                      // R^2, where R = W^k, where k = ??
+  libff::bigint<LIMBS> Rcubed;
+  
 } field_desc_tc;
 // When we recurse through the circuit, 
 // keep track of root modifiers that result 

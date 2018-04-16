@@ -243,6 +243,12 @@ FieldElt* QSP::createLagrangeDenominators() {
 	for (int k = 1; k < this->degree; k++) { // For each r_k
 		field->add(ctr, one, ctr);
 		field->mul(factorial[k-1], ctr, factorial[k]);
+		
+		//field->print(ctr);
+		/*
+		if (k < 10)
+			field->print(factorial[k]);
+		*/
 	}
 
 	for (int i = 0; i < this->degree; i++) {	// For each L_i
@@ -261,3 +267,48 @@ FieldElt* QSP::createLagrangeDenominators() {
 	return denominators;
 }
 
+FieldElt* QSP::evalLagrange(FieldElt& evaluationPoint, FieldElt* denominators) {
+	FieldElt* lagrange = new FieldElt[this->degree];
+	FieldElt* diff = new FieldElt[this->degree];
+	FieldElt master;
+	bool flag = false; int k;
+
+	field->one(master);
+	for (int i=0; i < this->degree; i++) {
+		field->sub(evaluationPoint, targetRoots[i], diff[i]);
+		if (field->isZero(diff[i])) {
+			k = i;
+			flag = true;
+			break;
+		}
+		field->mul(master, diff[i], master);
+	}
+
+	if (flag) {
+		for (int j = 0; j < this->degree; j++) {
+			if (j == k)
+				field->one(lagrange[j]);
+			else
+				field->zero(lagrange[j]);
+		}
+	} else {
+		for (int i = 0; i < this->degree; i++) {
+			FieldElt numerator;
+			field->div(master, diff[i], numerator);
+			field->div(numerator, denominators[i], lagrange[i]);
+		}
+	}
+
+	delete [] diff;
+	return lagrange;
+}
+
+void QSP::evalSparsePoly(SparsePolynomial* poly, FieldElt* lagrange, FieldElt& result) {
+	field->zero(result);
+
+	FieldElt tmp;
+	for (poly->iterStart(); !poly->iterEnd(); poly->iterNext()) {
+		field->mul(lagrange[poly->curRootID()], *poly->curRootVal(), tmp);
+		field->add(tmp, result, result);
+	}
+}

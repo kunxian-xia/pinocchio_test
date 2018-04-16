@@ -66,6 +66,7 @@ public:
 	// Is a < b over the integers?
 	bool lt(FieldElt& a, FieldElt& b);
 
+	bool isZero(FieldElt &a);
 	// dst <- src
 	inline void copy(const FieldElt& src, FieldElt& dst) { memcpy(dst.data, src.data, sizeof(FieldElt)); }
 
@@ -73,6 +74,8 @@ public:
 	//inline bool equal(const FieldElt& f1, const FieldElt& f2) { return Kequal(f1, f2, msfield, PBIGCTX_PASS) != 0; }
 	
 	void print(const FieldElt& e);
+	void print_hex(const FieldElt& e);
+	FieldElt* mont_to_std(const FieldElt& e);
 
 	field_desc_tc* msfield;
 	

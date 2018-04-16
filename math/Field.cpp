@@ -8,6 +8,15 @@ Field::Field(field_desc_tc* field)
 {
     msfield = field;
     FIELDMODULUS = msfield->modulus;
+    Fp_model<LIMBS, FIELDMODULUS>::inv = msfield->inv;
+    Fp_model<LIMBS, FIELDMODULUS>::euler = msfield->euler;
+    Fp_model<LIMBS, FIELDMODULUS>::num_bits = msfield->num_bits;
+    Fp_model<LIMBS, FIELDMODULUS>::Rsquared = msfield->Rsquared;
+    Fp_model<LIMBS, FIELDMODULUS>::s = msfield->s;
+    Fp_model<LIMBS, FIELDMODULUS>::t = msfield->t;
+    Fp_model<LIMBS, FIELDMODULUS>::t_minus_1_over_2 = msfield->t_minus_1_over_2;
+    Fp_model<LIMBS, FIELDMODULUS>::Rcubed = msfield->Rcubed;
+
     memcpy(ctr.data, msfield->one.data, sizeof(FieldElt));
 }
 
@@ -112,11 +121,37 @@ void Field::sub(const FieldElt& a, const FieldElt& b, FieldElt& c)
 
 void Field::print(const FieldElt& e)
 {
-    e.print();
+    FieldElt* ebar = mont_to_std(e);
+    ebar->print();
+    //e.print();
 }
 
+void Field::print_hex(const FieldElt& e) {
+    FieldElt* ebar = mont_to_std(e);
+    ebar->print_hex();
+}
+
+//void Field::print_hex()
 void Field::assignFreshElt(FieldElt* elt)
 {
     memcpy(elt->data, ctr.data, sizeof(FieldElt));
     add(ctr, ctr, ctr);
+}
+
+bool Field::isZero(FieldElt& a)
+{
+    FieldElt tmp;
+    zero(tmp);
+
+    return memcmp(a.data, tmp.data, sizeof(FieldElt)) == 0;
+}
+
+FieldElt* Field::mont_to_std(const FieldElt& a) {
+    FieldElt* abar = new FieldElt;
+    Fp_model<LIMBS, FIELDMODULUS> tmp;
+    tmp.mont_repr.data[0] = 1;
+    tmp.mul_reduce(a);
+
+    copy(tmp.mont_repr, *abar);
+    return abar;
 }

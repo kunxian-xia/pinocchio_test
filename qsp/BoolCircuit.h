@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-#include "Types.h"
+#include "include/Types.h"
 #include "BoolGate.h"
 #include "BoolWire.h"
 

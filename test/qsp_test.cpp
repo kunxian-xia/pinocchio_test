@@ -1,10 +1,17 @@
 #include "qsp/QSP.h"
 #include "qsp/CircuitBinaryAdder.h"
+#include <NTL/ZZ.h>
+#include <NTL/ZZ_p.h>
 
 using namespace libff;
+using namespace NTL;
 
 field_desc_tc* initField() 
 {
+    /*
+    ZZ p;
+    ZZ_p::init(p);
+    */
     field_desc_tc* alt_bn128_field = new field_desc_tc;
     
     alt_bn128_field->modulus = libff::bigint<LIMBS>("21888242871839275222246405745257275088696311157297823662689037894645226208583");
@@ -14,13 +21,13 @@ field_desc_tc* initField()
     if (sizeof(mp_limb_t) == 8)
     {
         alt_bn128_field->Rsquared = libff::bigint<LIMBS>("3096616502983703923843567936837374451735540968419076528771170197431451843209");
-        //alt_bn128_field->Rcubed = bigint_q("14921786541159648185948152738563080959093619838510245177710943249661917737183");
+        alt_bn128_field->Rcubed = bigint<LIMBS>("14921786541159648185948152738563080959093619838510245177710943249661917737183");
         alt_bn128_field->inv = 0x87d20782e4866389;
     }
     if (sizeof(mp_limb_t) == 4)
     {
         alt_bn128_field->Rsquared = libff::bigint<LIMBS>("3096616502983703923843567936837374451735540968419076528771170197431451843209");
-        //alt_bn128_field->Rcubed = bigint_q("14921786541159648185948152738563080959093619838510245177710943249661917737183");
+        alt_bn128_field->Rcubed = bigint<LIMBS>("14921786541159648185948152738563080959093619838510245177710943249661917737183");
         alt_bn128_field->inv = 0xe4866389;
     }
     alt_bn128_field->num_bits = 254;
@@ -39,6 +46,11 @@ void runSimpleQspTests()
 {
     field_desc_tc* field_tc = initField(); 
     Field* field = new Field(field_tc);
+    FieldElt a, b, r;
+    field->one(a);
+    field->add(a, a, b);
+    field->div(b, a, r);
+    field->print(r);
 
 	CircuitBinaryAdder circuit(5);
 
@@ -53,10 +65,18 @@ void runSimpleQspTests()
 	
 	circuit.eval();
 	
-
 	// Try constructing a QSP
 	QSP qsp(&circuit, field);	
     printf("qsp's size = %d, degree= %d\n", qsp.getSize(), qsp.getDegree());
+
+    FieldElt s;
+    field->assignRandomElt(&s);
+    FieldElt* denom = qsp.createLagrangeDenominators();
+    FieldElt* lagrange = qsp.evalLagrange(s, denom);
+    SparsePolynomial* target = qsp.getSPtarget();
+    FieldElt res;
+    qsp.evalSparsePoly(target, lagrange, res);
+    field->print(res);
 /*
 	Keys* keys = qsp.genKeys(config);
 

@@ -6,7 +6,7 @@
 //#include "Types.h"
 //#include "BoolGate.h"
 //#include "BoolPoly.h"
-#include "SparsePolynomial.h"
+#include "include/SparsePolynomial.h"
 
 class BoolWire;
 class BoolGate;

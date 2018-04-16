@@ -2,11 +2,11 @@
 
 #include <vector>
 #include "BoolCircuit.h"
-#include "Field.h"
+#include "include/Field.h"
 //#include "Proof.h"
 //#include "Keys.h"
 //#include "Encoding.h"
-#include "SparsePolynomial.h"
+#include "include/SparsePolynomial.h"
 
 //#include <boost/program_options.hpp>
 //using namespace boost::program_options;
@@ -50,15 +50,19 @@ public:
 	EltVector wTargetRoots;  // t_w(x) = \prod(x-r), for all r in wTargetRoots	
 	EltVector wireCheckerTargetRoots;	// t'(x) = \prod(x-r), for all r in wireCheckerTargetRoots	
 
+	FieldElt* createLagrangeDenominators();
+	FieldElt* evalLagrange(FieldElt& evaluationPoint, FieldElt* denominators);
+	void evalSparsePoly(SparsePolynomial* poly, FieldElt* lagrange, FieldElt& result);
+
+	SparsePolyPtrVector V;			
+	SparsePolyPtrVector W;	
+	FieldElt* targetRoots;
 private:
 	//Encoding* encoding;			// Encoding we'll use when doing crypto with this QSPs
 
 	// Each element of V corresponds to a v_k(x), 
 	// and indicates the values in targetRoots at which v_k(x) is non-zero
 	// (and the corresponding non-zero coefficient) 
-	SparsePolyPtrVector V;			
-	SparsePolyPtrVector W;	
-	FieldElt* targetRoots;
 
 	int degree;			// Max polynomial degree
 	int size;			// Number of polynomials
@@ -77,9 +81,6 @@ private:
 
 	void duplicateVtoW();
 
-	FieldElt* createLagrangeDenominators();
-	FieldElt* evalLagrange(FieldElt& evaluationPoint, FieldElt* denominators);
-	void evalSparsePoly(SparsePolynomial* poly, FieldElt* lagrange, FieldElt& result);
 
 	// Sometimes, we end up with polynomials represented by arrays,
 	// with each entry representing the value of the corresponding root
