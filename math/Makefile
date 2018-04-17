@@ -12,3 +12,6 @@ SparsePolynomial.o: SparsePolynomial.cpp
 	g++ -std=c++11 -g -DVERBOSE -I.. -c SparsePolynomial.cpp
 #*.o: *.cpp
 	#g++ -std=c++11 -g -DVERBOSE -I.. -c $<
+clean:
+	rm -f *.o
+	rm -f libMath.a
