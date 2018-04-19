@@ -1,22 +1,26 @@
+#pragma once 
+
 #include "Keys.h"
 #include "Proof.h"
 #include "Encoding.h"
 #include "qsp/QSP.h"
 
+/*
+class ProvingKey;
+class VerificationKey;
 
-class zkSnark {
+*/
+
+class GGPR {
 public:
-  virtual void genKeyPair(QspProvingKey &prov, QspVerificationKey &verf) = 0;
-
-  virtual QspProof *prove(const QspProvingKey &prov) = 0;
-
-  virtual bool verify(const QspVerificationKey &verf) = 0;
-
-  QSP *qsp;
-};
-
-class GGPR : zkSnark {
-public:
-    GGPR();
+    GGPR(QSP* qsp, Encoding* encoding);
     ~GGPR();
+    virtual void genKeyPair(QspProvingKey& prov, QspVerificationKey& verf);
+
+    virtual QspProof *prove(const QspProvingKey &prov);
+
+    virtual bool verify(const QspVerificationKey &verf);
+
+    QSP* qsp;
+    Encoding* encoding;
 };

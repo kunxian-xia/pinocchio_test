@@ -1,3 +1,4 @@
+#pragma once
 #include "Encoding.h"
 
 class QspProvingKey {

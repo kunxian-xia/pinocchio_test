@@ -2,24 +2,27 @@
 #include <libff/algebra/fields/fp.hpp>
 using namespace libff;
 
-bigint<LIMBS> FIELDMODULUS;
+bigint<LIMBS> base_field;
 
 Field::Field(field_desc_tc* field)
 {
     msfield = field;
-    FIELDMODULUS = msfield->modulus;
-    Fp_model<LIMBS, FIELDMODULUS>::inv = msfield->inv;
-    Fp_model<LIMBS, FIELDMODULUS>::euler = msfield->euler;
-    Fp_model<LIMBS, FIELDMODULUS>::num_bits = msfield->num_bits;
-    Fp_model<LIMBS, FIELDMODULUS>::Rsquared = msfield->Rsquared;
-    Fp_model<LIMBS, FIELDMODULUS>::s = msfield->s;
-    Fp_model<LIMBS, FIELDMODULUS>::t = msfield->t;
-    Fp_model<LIMBS, FIELDMODULUS>::t_minus_1_over_2 = msfield->t_minus_1_over_2;
-    Fp_model<LIMBS, FIELDMODULUS>::Rcubed = msfield->Rcubed;
+    base_field = msfield->modulus;
+    Fp_model<LIMBS, base_field>::inv = msfield->inv;
+    Fp_model<LIMBS, base_field>::euler = msfield->euler;
+    Fp_model<LIMBS, base_field>::num_bits = msfield->num_bits;
+    Fp_model<LIMBS, base_field>::Rsquared = msfield->Rsquared;
+    Fp_model<LIMBS, base_field>::s = msfield->s;
+    Fp_model<LIMBS, base_field>::t = msfield->t;
+    Fp_model<LIMBS, base_field>::t_minus_1_over_2 = msfield->t_minus_1_over_2;
+    Fp_model<LIMBS, base_field>::Rcubed = msfield->Rcubed;
 
     memcpy(ctr.data, msfield->one.data, sizeof(FieldElt));
 }
 
+Field::~Field() {
+    delete msfield;
+}
 void Field::assignRandomElt(FieldElt* elt)
 {
     bigint<LIMBS> r;
@@ -27,7 +30,7 @@ void Field::assignRandomElt(FieldElt* elt)
     {
         r.randomize();
 
-        /* clear all bits higher than MSB of modulus */
+        /* clear base_field bits higher than MSB of modulus */
         size_t bitno = GMP_NUMB_BITS * LIMBS - 1;
         while (msfield->modulus.test_bit(bitno) == false)
         {
@@ -76,8 +79,8 @@ void Field::set(FieldElt& a, int i)
 
 void Field::mul(const FieldElt& a, const FieldElt& b, FieldElt& c)
 {
-    Fp_model<LIMBS, FIELDMODULUS> tmpA;
-    Fp_model<LIMBS, FIELDMODULUS> tmpB;
+    Fp_model<LIMBS, base_field> tmpA;
+    Fp_model<LIMBS, base_field> tmpB;
 
     tmpA.mont_repr = a;
     tmpB.mont_repr = b;
@@ -87,9 +90,9 @@ void Field::mul(const FieldElt& a, const FieldElt& b, FieldElt& c)
 
 void Field::div(const FieldElt& a, const FieldElt& b, FieldElt& c)
 {
-    Fp_model<LIMBS, FIELDMODULUS> tmpA;
-    Fp_model<LIMBS, FIELDMODULUS> tmpB;
-    Fp_model<LIMBS, FIELDMODULUS> tmpBinv;
+    Fp_model<LIMBS, base_field> tmpA;
+    Fp_model<LIMBS, base_field> tmpB;
+    Fp_model<LIMBS, base_field> tmpBinv;
 
     tmpA.mont_repr = a;
     tmpB.mont_repr = b;
@@ -99,8 +102,8 @@ void Field::div(const FieldElt& a, const FieldElt& b, FieldElt& c)
 }
 void Field::add(const FieldElt& a, const FieldElt& b, FieldElt& c)
 {
-    Fp_model<LIMBS, FIELDMODULUS> tmpA;
-    Fp_model<LIMBS, FIELDMODULUS> tmpB;
+    Fp_model<LIMBS, base_field> tmpA;
+    Fp_model<LIMBS, base_field> tmpB;
 
     tmpA.mont_repr = a;
     tmpB.mont_repr = b;
@@ -110,8 +113,8 @@ void Field::add(const FieldElt& a, const FieldElt& b, FieldElt& c)
 
 void Field::sub(const FieldElt& a, const FieldElt& b, FieldElt& c)
 {
-    Fp_model<LIMBS, FIELDMODULUS> tmpA;
-    Fp_model<LIMBS, FIELDMODULUS> tmpB;
+    Fp_model<LIMBS, base_field> tmpA;
+    Fp_model<LIMBS, base_field> tmpB;
 
     tmpA.mont_repr = a;
     tmpB.mont_repr = b;
@@ -148,7 +151,7 @@ bool Field::isZero(FieldElt& a)
 
 FieldElt* Field::mont_to_std(const FieldElt& a) {
     FieldElt* abar = new FieldElt;
-    Fp_model<LIMBS, FIELDMODULUS> tmp;
+    Fp_model<LIMBS, base_field> tmp;
     tmp.mont_repr.data[0] = 1;
     tmp.mul_reduce(a);
 

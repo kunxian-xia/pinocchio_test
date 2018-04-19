@@ -80,12 +80,15 @@
 #include <libff/algebra/fields/bigint.hpp>
 
 #ifndef DEBUG_ENCODING
+
 #define LIMBS 4
 typedef libff::bigint<LIMBS> FieldElt;
 #else // DEBUG_ENCODING
 #define LIMBS 1
 typedef libff::bigint<LIMBS> FieldElt;
 #endif // DEBUG_ENCODING
+
+extern libff::bigint<LIMBS> base_field;
 
 typedef struct {
   libff::bigint<LIMBS> modulus;
